@@ -1,0 +1,134 @@
+1. pipenv install django
+2. django-admin startproject quotesite
+3. cd .\quotesite
+4. python manage.py startapp quotes
+5. python manage.py startapp users
+6. В кожному застосунку створюємо папку з templates
+7. В кожній такій папці створимо однакові файли з шаблонами: base.html, index.html
+8. Створимо в кожній папці guotes and users urls.py
+
+В urls.py з guotes додаємо:
+ from django.urls import path, include
+
+from . import views
+
+app_name = "quotes"
+
+urlpatterns = [
+    path('', views.main, name='root'),  
+   
+]
+
+Це означає, що в шаблоні потрібно буде прописать тег: {% url 'quotes:root' %}
+
+9. Йдемо в кореневі urls.py і додаємо там:
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('quotes.urls')),
+    
+]
+
+10. Те саме робимо для users, дописуємо path('users/', include('users.urls'))
+
+11. Йдемо у settings.py:
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'quotes',
+    'users',
+]
+
+12. Bootstrap берем линк и вставляем после meta
+
+13. base.html копіюємо html з сайту
+
+14. Створимо папку static для стилів, далі quotes далі style.css
+
+15. Ми хочемо доєднати стилі, нам треба в base.html написати :
+{% load static %}
+    <link rel="stylesheet" href="{% static 'quotes/style.css' %}">
+
+16. Создаю образ монго:
+docker run -d -p 27017:27017 --name my-mongo-container mongo
+
+17. Делаю контейнер, запускаю его и Монгокомпасс конектюсь к контейнеру
+
+18. Створимо файл json_to_mongo, щоб автори в цитатах відображалась як index
+
+19.pipenv install bson
+
+20. pipenv install pymongo
+
+21.json_to_mongo.py
+import json
+from bson.objectid import ObjectId
+from pymongo import MongoClient
+
+client = MongoClient('mongodb://localhost')
+
+db = client.django
+
+with open('utils/quotes.json', 'r', encoding='utf-8') as fd:
+    quotes = json.load(fd)
+
+for quote in quotes:
+    author = db.authors.find_one({'fullname': quote['author']})
+    if author:
+        db.quotes.insert_one(
+            {
+                'tags': quote['tags'],
+                'author': ObjectId(author['_id']),
+                'quote': quote['quote'],
+            }
+        )
+
+22. В папке quotes создадим файл utils.py который будет возвразать нашу базу данных монго
+23. Идем во views и дописываем наш код, докидываем через контекст изменения в наш шаблон:
+
+from django.shortcuts import render
+from .utils import get_mongodb
+
+
+
+def main(request):
+    db = get_mongodb()
+    quotes = db.quotes.find()
+    return render(request, 'quotes/index.html', context={'quotes':quotes})
+
+24. Идем в index.html вставляем туда все цитаты
+
+25. Делаем папку tamplatestags а в ней extract.py
+from bson.objectid import ObjectId
+
+from django import template
+
+from ..utils import get_mongodb
+
+register = template.Library()
+
+
+def get_author(id_):
+    db = get_mongodb()
+    author = db.authors.find_one({'_id': ObjectId(id_)})
+    return author['fullname']
+
+
+register.filter('author', get_author)
+
+
+26. Идем в index.html и там дописываем код для этого
+
+
+
+
+
+
+
+
