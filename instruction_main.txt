@@ -275,11 +275,67 @@ for quote in quotes:
 {% endblock %}
 
 
+и тут стоит сказать, что пришлось поменять в index.html на <a href="/author/{{quote.author}}">  (about)</a>
+
+
 34. Работаем над тегами:
         1. Создадим файл tag.html
         2. urls добавим путь path('tag/<str:tag_name>/', views.quotes_by_tag, name='quotes_by_tag'),
         3. views напишем функцию quotes_by_tag
-        
+
+        def tag_page(request, tag_name):
+    tag = Tag.objects.get(name=tag_name)
+    quotes_with_tag = Quote.objects.filter(tags=tag)
+    return render(request, 'quotes/tag.html', {'quotes_with_tag': quotes_with_tag, 'tag': tag})
+
+
+        4. Напишем tag.html
+        {% extends 'quotes/base.html' %}
+
+{% block content %}
+    <h3>Viewing tag: {{ tag.name }}</h3>
+    {% for quote in quotes_with_tag %}
+        <div class="quote">
+            <p>{{ quote.quote }}</p>
+            <p>by {{ quote.author.fullname }} <a href="/author_for_tag/{{quote.author.id}}">  (about)</a>
+
+
+
+            <p>Tags:
+                {% for tag in quote.tags.all %}
+                <a class="tag" href="/tag/{{ tag.name }}">{{ tag.name }}</a>
+
+                {% endfor %}
+            </p>
+        </div>
+    {% endfor %}
+{% endblock %}
+
+35. Для того, чтобы при переходе по ссылке по about нам передавались авторы, надо создать еще одну страничку author_for_tag.html, потому что в файле index.html у нас возвращается id автора с базі монго 
+а нам надо сейчас с базі постгрес
+    1. urls.py:
+    path('author_for_tag/<int:author_id>', views.author_for_tag, name='author_for_tag'),
+
+    2. def author_for_tag(request, author_id):
+    author = Author.objects.get(id=author_id)
+    return render(request, 'quotes/author_for_tag.html', context={'author': author})
+
+
+    3. author_for_tag.html
+   {% extends 'quotes/base.html' %}
+
+{% block content %}
+<div>
+    <h3 class="author-title">{{ author.fullname }}</h3>
+    <p><strong>Born:</strong> <span class="author-born-date">{{ author.born_date }}</span> <span class="author-born-location">{{ author.born_location }}</span></p>
+    <p><strong>Description:</strong></p>
+    <div class="author-description">
+        {{ author.description }}
+    </div>
+    
+  
+</div>
+{% endblock %} 
 
 
 
