@@ -160,3 +160,6 @@ body {
     font-size: large;
     font-style: italic;
 }
+.btn-group .btn {
+  margin-right: 20px; /* Измените значение отступа по вашему усмотрению */
+}
