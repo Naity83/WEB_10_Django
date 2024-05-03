@@ -4,10 +4,27 @@
 
 
 {% block content %}
+
+
  
 <div class="row">
     <div class="col-md-8">
 
+        <div class="quote" itemscope="" itemtype="http://schema.org/CreativeWork">
+            <span class="text" itemprop="text"> {{latest_quote.quote}}</span>
+            <span>by <small class="author" itemprop="author">{{author_for_latest_quote.fullname}}</small>
+               
+                <a href="/author_for_tag/{{latest_quote.author.id}}">  (about)</a>
+                   
+            </span>
+            <div class="tags">
+                Tags:
+                {% for tag in tags_for_latest_quote %}       
+                <a class="tag" href="/tag/{{ tag.name }}">{{tag.name}}</a>
+                {% endfor %}
+            </div>
+        </div>    
+        
     {% for quote in quotes %}
     
     <div class="quote" itemscope="" itemtype="http://schema.org/CreativeWork">
@@ -26,6 +43,9 @@
             {% endfor %}
         </div>
     </div>
+
+
+    
     {% endfor %}
 
         
@@ -49,6 +69,22 @@
         </ul>
     </nav>
     </div>
+
+    <div class="col-md-4 tags-box">
+        
+        <h2>Top Ten tags</h2>
+        {% for tag in top_tags %}
+        
+       
+        <span class="tag-item">
+        <a class="{{ tag.css_class }}" href="/tag/{{tag}}">{{tag}}</a>
+        </span>
+        {% endfor %}
+
+</div>
+
+
+
 </div>
 
 {% endblock %}

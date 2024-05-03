@@ -112,3 +112,13 @@ urlpatterns = [
 LOGIN_URL = "/users/signin"    
 LOGIN_REDIRECT_URL = "/"
 
+
+8. Допишем в моделях привязку к User классу, чтобы у каждого пользователя быд так сказать свой кабинет
+
+  user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)
+
+ 9. СРобимо міграції:
+python manage.py makemigrations
+python manage.py migrate  
+
+
